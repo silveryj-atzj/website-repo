@@ -1,8 +1,5 @@
 # Web / WordPress
 
-WordPress **不是托管服务**，是开源自托管 CMS：程序跑在你自己的 CT600（LEMP 栈）里，
-`/opt/lemp/html` 是网站根目录，数据库是 `home_site`。
-
 - 前台：https://silveryj-atzj.me
 - 后台：https://silveryj-atzj.me/wp-admin/
 
