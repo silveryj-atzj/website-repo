@@ -1,7 +1,7 @@
 # Web / WordPress
 
 - 前台：https://silveryj-atzj.me
-- 
+- 后台：https://silveryj-atzj.me/wp-admin/
 
 ## 这个仓库放什么
 
@@ -25,3 +25,41 @@ Web/WordPress/
 4. `git add -A && git commit -m "..." && git push`
 
 > 不想写主题只想改样式？后台「外观 → 自定义」就够了，不必进这个仓库。
+
+## 自动部署
+
+push 到 GitHub 后，自托管 Runner 会打包 `wp-content` 并推给内网部署入口，服务器覆盖同步 `themes/` 与 `plugins/`（不删除线上已有文件，避免误删）。
+
+---
+
+# Web / WordPress (English)
+
+- Site: https://silveryj-atzj.me
+- Admin: https://silveryj-atzj.me/wp-admin/
+
+## What goes in this repository
+
+WordPress core (`wp-*.php`, `wp-admin/`, `wp-includes/`) is **not** committed — it is updated upstream and would only cause conflicts.
+Only your own work lives here:
+
+```
+Web/WordPress/
+├─ wp-content/
+│  ├─ themes/     ← your themes / child themes (prefer child themes over editing a bundled one)
+│  └─ plugins/    ← your own plugins
+├─ deploy.ps1     ← sync wp-content to the server
+└─ README.md
+```
+
+## Workflow
+
+1. Develop under `wp-content/themes/my-theme/`
+2. `powershell -File deploy.ps1` → syncs to `/opt/lemp/html/wp-content/` on the web container
+3. Admin → Appearance → Themes → activate
+4. `git add -A && git commit -m "..." && git push`
+
+> Only need style tweaks? Use Appearance → Customize in the admin; you do not need this repository.
+
+## Automated deployment
+
+After pushing to GitHub, a self-hosted runner packages `wp-content` and posts it to the internal deploy endpoint. The server overlays `themes/` and `plugins/` (it never deletes existing files on the server, to avoid accidental removal).
