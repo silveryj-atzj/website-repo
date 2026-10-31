@@ -1,0 +1,49 @@
+name: reverse-sync (server -> GitHub)
+
+# 定时把服务器上的 wp-content/themes & plugins 同步回 GitHub
+# 数据来源：CT600 上的定时快照 /opt/runner-wp/wp-snapshot.tgz（挂载进 runner 的 work 目录）
+on:
+  schedule:
+    - cron: '23 */6 * * *'   # 每 6 小时
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  reverse:
+    runs-on: [self-hosted, wordpress]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: locate snapshot
+        id: snap
+        run: |
+          SNAP="/home/runner/work/wp-snapshot.tgz"
+          if [ -f "$SNAP" ]; then
+            echo "found=1" >> "$GITHUB_OUTPUT"
+            echo "path=$SNAP" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=0" >> "$GITHUB_OUTPUT"
+            echo "no snapshot yet"
+          fi
+
+      - name: sync server files into repo
+        if: steps.snap.outputs.found == '1'
+        run: |
+          mkdir -p /tmp/snap && tar -xzf "${{ steps.snap.outputs.path }}" -C /tmp/snap
+          mkdir -p wp-content/themes wp-content/plugins
+          for d in themes plugins; do
+            if [ -d "/tmp/snap/$d" ]; then
+              rsync -a --delete "/tmp/snap/$d/" "wp-content/$d/" 2>/dev/null || cp -a "/tmp/snap/$d/." "wp-content/$d/"
+            fi
+          done
+          git config user.name "silverju-bot"
+          git config user.email "bot@silveryj-atzj.me"
+          git add -A wp-content
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "chore: sync server wp-content $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+          fi
