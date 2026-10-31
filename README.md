@@ -1,7 +1,7 @@
 # Web / WordPress
 
 - 前台：https://silveryj-atzj.me
-- 后台：https://silveryj-atzj.me/wp-admin/
+- 
 
 ## 这个仓库放什么
 
